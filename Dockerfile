@@ -3,10 +3,10 @@ FROM golang:alpine AS build
 ARG IGNORECACHE=0
 
 ADD . /hostproxy
-RUN --mount=type=cache,target=/go \
+RUN target=/go \
     cd /hostproxy \
     && echo "go get" \
-    && go get -d \
+    && go get \
     && echo "go build" \
     && GOCACHE=/go/.cache CGO_ENABLED=0 go build -ldflags='-s -w'
 

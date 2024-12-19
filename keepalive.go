@@ -1,19 +1,22 @@
 package main
 
 import (
+	"fmt"
 	"strings"
 
-	"go4.org/strutil"
 	"github.com/ateliersjp/http"
 )
 
 func disableKeepAlive(m *http.Msg) {
-	for i, line := range m.Headers {
-		if strutil.HasPrefixFold(line, "Connection:") || strutil.ContainsFold(line, "-Connection:") {
-			line = strings.Replace(line, "keep-alive", "close", 1)
-			line = strings.Replace(line, "Keep-Alive", "Close", 1)
-			m.Headers[i] = line
-			break
+	for i, l := range m.Headers {
+		if k, v, ok := strings.Cut(l, ":"); ok {
+			n := strings.LastIndex(k, "-") + 1
+			if strings.EqualFold(k[n:], "Connection") {
+				v = strings.Replace(v, "keep-alive", "close", 1)
+				v = strings.Replace(v, "Keep-Alive", "Close", 1)
+				m.Headers[i] = fmt.Sprintf("%s: %s", k, v)
+				break
+			}
 		}
 	}
 }
